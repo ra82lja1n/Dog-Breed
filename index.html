@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Info Finder</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body{
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #eef2f3;
+            padding: 30px;
+        }
+
+        h1{
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* Search Box */
+        #input{
+            width: 300px;
+            height: 42px;
+            margin-top: 10px;
+        }
+
+        input{
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            transition: .3s;
+        }
+
+        input:focus{
+            border-color: #3b82f6;
+            box-shadow: 0px 0px 4px rgba(59,130,246,0.4); 
+        }
+
+        /* Button */
+        #click{
+            width: 300px;
+            height: 42px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+            background: #3b82f6; 
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        #click:hover{
+            background: #2563eb;
+        }
+
+        /* Display section */
+        #displayDogs{
+            margin-top: 30px;
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card Style */
+        .dog-card{
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            transition: .25s;
+        }
+
+        .dog-card:hover{
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+        }
+
+        .dog-card h2{
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .dog-card p{
+            margin-bottom: 6px;
+            color: #444;
+            font-size: 14.5px;
+        }
+
+        .not-found{
+            font-size: 18px;
+            color: #cc0000;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Dog Info Finder 🐾</h1>
+
+    <div id="input">
+        <input id="search" type="text" placeholder="Search dog description...">
+    </div>
+
+    <button id="click">Search</button>
+
+    <div id="displayDogs"></div>
+</body>
+</html>
+
+<script>
+
+let api = "https://dummyjson.com/recipes";
+
+let searchInput = document.querySelector("#search");
+let clickButton = document.querySelector("#click");
+
+let array;
+
+/* ---------------- FETCH ---------------- */
+const trigger =  async  () => {
+    let query = await fetch("https://dogapi.dog/api/v2/breeds");
+    let data = await query.json();
+    array = data.data;
+}
+
+trigger();
+
+/* ----------- DISPLAY UI ---------- */
+function display(items){
+    let box = document.querySelector("#displayDogs");
+    box.innerHTML = "";
+
+    if(items.length === 0){
+        box.innerHTML = `<p class="not-found">No dogs found</p>`;
+        return;
+    }
+
+    items.forEach(el => {
+        let dog = el.attributes;
+
+        let card = `
+            <div class="dog-card">
+                <h2>${dog.name}</h2>
+                <p><strong>Description:</strong> ${dog.description}</p>
+                <p><strong>Life Span:</strong> ${dog.life.min} - ${dog.life.max} years</p>
+                <p><strong>Male Weight:</strong> ${dog.male_weight.min}–${dog.male_weight.max} kg</p>
+                <p><strong>Female Weight:</strong> ${dog.female_weight.min}–${dog.female_weight.max} kg</p>
+                <p><strong>Hypoallergenic:</strong> ${dog.hypoallergenic ? "Yes" : "No"}</p>
+            </div>
+        `;
+
+        box.innerHTML += card;
+    });
+}
+
+clickButton.addEventListener("click", () => {
+    let currentQuery = searchInput.value;
+
+    const searchResult = array.filter((el) =>{
+        return el.attributes.description.toLowerCase().includes(currentQuery.toLowerCase());
+    })
+    
+    display(searchResult)
+});
+
+</script>
